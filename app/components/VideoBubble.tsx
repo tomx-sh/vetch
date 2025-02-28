@@ -1,9 +1,9 @@
 "use client"
-import { useRef, useEffect, useState, useMemo } from "react";
-import { Box, Spinner } from "@radix-ui/themes";
+import { useRef, useEffect, useState } from "react";
+import { Box, Spinner, BoxProps } from "@radix-ui/themes";
 import { useFaceTrack } from "../hooks/useFaceTrack";
-import { getFaceCenteringTransform, getFaceScaling } from "../lib/faceTrack";
 import { Detection } from "@mediapipe/tasks-vision";
+import useFaceCentering from "../hooks/useFaceCentering";
 
 
 
@@ -11,11 +11,29 @@ import { Detection } from "@mediapipe/tasks-vision";
 export default function VideoBubble(props: {
     stream?: MediaStream | null;
     loading?: boolean;
-}) {
-    const { stream, loading } = props;
+} & BoxProps) {
+    const { stream, loading, ...boxProps } = props;
     const videoRef = useRef<HTMLVideoElement>(null);
+    const boxRef = useRef<HTMLDivElement>(null);
     const { startTracking, stopTracking } = useFaceTrack();
     const [faceDetection, setFaceDetection] = useState<Detection>();
+    const { cssTransform, cssScale } = useFaceCentering({
+        face: {
+            originX: faceDetection?.boundingBox?.originX ?? 50,
+            originY: faceDetection?.boundingBox?.originY ?? 50,
+            width: faceDetection?.boundingBox?.width ?? 50,
+            height: faceDetection?.boundingBox?.height ?? 50,
+        },
+        video: {
+            width: videoRef.current?.videoWidth ?? 1920,
+            height: videoRef.current?.videoHeight ?? 1080,
+        },
+        container: {
+            width: boxRef.current?.clientWidth ?? 200,
+            height: boxRef.current?.clientHeight ?? 200,
+        },
+        factor: 0.8,
+    });
 
 
     useEffect(() => {
@@ -47,75 +65,20 @@ export default function VideoBubble(props: {
     }, [stream, startTracking, stopTracking]);
 
 
-
-    const faceTransform = useMemo(() => {
-        if (!faceDetection?.boundingBox) {
-            return;
-        }
-
-        const {
-            originX,
-            originY,
-            width,
-            height,
-        } = faceDetection.boundingBox;
-
-        const transform = getFaceCenteringTransform({
-            face: {
-                originX,
-                originY,
-                width,
-                height,
-            },
-            videoWidth: videoRef.current?.videoWidth ?? 0,
-            videoHeight: videoRef.current?.videoHeight ?? 0,
-            containerWidth: 200,
-            containerHeight: 200,
-        });
-
-        const cssTransform = `translate(${transform.transformX}px, ${transform.transformY}px)`;
-        return cssTransform;
-
-    }, [faceDetection]);
-
-    const faceScaling = useMemo(() => {
-        if (!faceDetection?.boundingBox) {
-            return;
-        }
-
-        const {
-            originX,
-            originY,
-            width,
-            height,
-        } = faceDetection.boundingBox;
-
-        const scale = getFaceScaling({
-            factor: 1.3,
-            face: {
-                originX,
-                originY,
-                width,
-                height,
-            },
-            containerWidth: 200,
-            containerHeight: 200,
-        });
-        return scale;
-    }, [faceDetection]);
-
     return (
-        <Box style={{
-            backgroundColor: "var(--gray-4)",
-            height: "200px",
-            width: "200px",
-            borderRadius: "50%",
-            overflow: "hidden",
-            boxShadow: "var(--shadow-4)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-        }}>
+        <Box
+            {...boxProps}
+            ref={boxRef}
+            style={{
+                backgroundColor: "var(--gray-4)",
+                borderRadius: "50%",
+                overflow: "hidden",
+                boxShadow: "var(--shadow-4)",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+            }}
+        >
             {
                 loading ? <Spinner size="3" /> :
                     <video
@@ -127,8 +90,8 @@ export default function VideoBubble(props: {
                             objectFit: "cover",
                             width: "100%",
                             height: "100%",
-                            transform: faceTransform ?? "none",
-                            scale: faceScaling ?? "none",
+                            transform: cssTransform,
+                            scale: cssScale,
                             transition: "transform 3s, scale 3s",
                         }}
                     />

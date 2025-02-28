@@ -68,7 +68,15 @@ export default function VideoBtn() {
                 Stop
             </Button>
 
-            <VideoBubble stream={stream} loading={waiting}/>
+            <VideoBubble
+                stream={stream}
+                loading={waiting}
+                width="150px"
+                height="150px"
+                position="fixed"
+                bottom="4"
+                right="4"
+            />
             
 
         </div>
