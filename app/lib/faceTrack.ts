@@ -85,3 +85,25 @@ export function getFaceCenteringTransform(args: {
         transformY: transformY * scale,
     }
 }
+
+
+/**
+ * Calculate a scaling factor in order to make
+ * the face rectangle big enough to fill a container.
+ */
+export function getFaceScaling(args: {
+    factor: number;
+    face: Rectangle;
+    containerWidth: number;
+    containerHeight: number;
+}): number {
+    const { factor, face, containerWidth, containerHeight } = args;
+    const scale = getScale({
+        originalWidth: face.width,
+        originalHeight: face.height,
+        finalWidth: containerWidth * factor,
+        finalHeight: containerHeight * factor,
+    });
+
+    return scale;
+}

@@ -2,7 +2,7 @@
 import { useRef, useEffect, useState, useMemo } from "react";
 import { Box, Spinner } from "@radix-ui/themes";
 import { useFaceTrack } from "../hooks/useFaceTrack";
-import { getFaceCenteringTransform } from "../lib/faceTrack";
+import { getFaceCenteringTransform, getFaceScaling } from "../lib/faceTrack";
 import { Detection } from "@mediapipe/tasks-vision";
 
 
@@ -78,6 +78,32 @@ export default function VideoBubble(props: {
 
     }, [faceDetection]);
 
+    const faceScaling = useMemo(() => {
+        if (!faceDetection?.boundingBox) {
+            return;
+        }
+
+        const {
+            originX,
+            originY,
+            width,
+            height,
+        } = faceDetection.boundingBox;
+
+        const scale = getFaceScaling({
+            factor: 1.3,
+            face: {
+                originX,
+                originY,
+                width,
+                height,
+            },
+            containerWidth: 200,
+            containerHeight: 200,
+        });
+        return scale;
+    }, [faceDetection]);
+
     return (
         <Box style={{
             backgroundColor: "var(--gray-4)",
@@ -102,7 +128,8 @@ export default function VideoBubble(props: {
                             width: "100%",
                             height: "100%",
                             transform: faceTransform ?? "none",
-                            transition: "transform 3s",
+                            scale: faceScaling ?? "none",
+                            transition: "transform 3s, scale 3s",
                         }}
                     />
             }
