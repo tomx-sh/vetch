@@ -61,7 +61,7 @@ export function useFaceTrack(): {
                 return;
             }
             const detections = faceDetector.detectForVideo(video, performance.now()).detections;
-            console.log("Face detected");
+            //console.log("Face detected");
             onDetection?.(detections);
         }
 
