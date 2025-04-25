@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react";
-import { Button } from "@radix-ui/themes";
 import VideoBubble from "./VideoBubble";
+import { Button } from "./ui/button";
 
 
 function useOpenMediaDevices(): {
@@ -63,7 +63,6 @@ export default function VideoBtn() {
             <Button
                 onClick={close}
                 disabled={waiting || stream === null}
-                variant="soft"
             >
                 Stop
             </Button>
@@ -71,11 +70,7 @@ export default function VideoBtn() {
             <VideoBubble
                 stream={stream}
                 loading={waiting}
-                width="150px"
-                height="150px"
-                position="fixed"
-                bottom="4"
-                right="4"
+                className="fixed bottom-4 right-4 w-36 h-36"
             />
             
 

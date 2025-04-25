@@ -1,9 +1,9 @@
 "use client"
 import { useRef, useEffect, useState } from "react";
-import { Box, Spinner, BoxProps } from "@radix-ui/themes";
 import { useFaceTrack } from "../hooks/useFaceTrack";
 import { Detection } from "@mediapipe/tasks-vision";
 import useFaceCentering from "../hooks/useFaceCentering";
+import { cn } from "@/lib/utils";
 
 
 
@@ -11,8 +11,9 @@ import useFaceCentering from "../hooks/useFaceCentering";
 export default function VideoBubble(props: {
     stream?: MediaStream | null;
     loading?: boolean;
-} & BoxProps) {
-    const { stream, loading, ...boxProps } = props;
+    className?: string;
+}) {
+    const { stream, loading, className } = props;
     const videoRef = useRef<HTMLVideoElement>(null);
     const boxRef = useRef<HTMLDivElement>(null);
     const { startTracking, stopTracking } = useFaceTrack();
@@ -66,21 +67,12 @@ export default function VideoBubble(props: {
 
 
     return (
-        <Box
-            {...boxProps}
+        <div
             ref={boxRef}
-            style={{
-                backgroundColor: "var(--gray-4)",
-                borderRadius: "50%",
-                overflow: "hidden",
-                boxShadow: "var(--shadow-4)",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-            }}
+            className={cn("bg-muted rounded-full overflow-hidden shadow flex justify-center items-center", className)}
         >
             {
-                loading ? <Spinner size="3" /> :
+                loading ? <p>...</p> :
                     <video
                         autoPlay
                         playsInline
@@ -96,7 +88,7 @@ export default function VideoBubble(props: {
                         }}
                     />
             }
-        </Box>
+        </div>
 
     );
 }
