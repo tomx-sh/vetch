@@ -13,27 +13,28 @@ type Props = {
 
 export function StartVideoBtn({ className }: Props) {
     const { open, close, stream, waiting } = useMediaDevices();
-    const [isStarted, setIsStarted] = useState(false);
     const [audioEnabled, setAudioEnabled] = useState(true);
     const [videoEnabled, setVideoEnabled] = useState(true);
 
     const handleSwitchAudio = useCallback((enabled: boolean) => {
         setAudioEnabled(enabled);
-        if (isStarted) open({ video: videoEnabled, audio: enabled });
-    }, [videoEnabled, open]);
+        if (!enabled && stream) {
+            stream.getAudioTracks().forEach(track => track.stop());
+        }
+    }, [stream]);
 
     const handleSwitchVideo = useCallback((enabled: boolean) => {
         setVideoEnabled(enabled);
-        if (isStarted) open({ video: enabled, audio: audioEnabled });
-    }, [audioEnabled, open]);
+        if (!enabled && stream) {
+            stream.getVideoTracks().forEach(track => track.stop());
+        }
+    }, [stream]);
 
     const handleStart = () => {
         open({ video: videoEnabled, audio: audioEnabled })
-        setIsStarted(true);
     };
     const handleStop = () => {
         close()
-        setIsStarted(false);
     };
 
     const message = waiting ? "Starting..." : (stream ? "Stop" : "Start");
