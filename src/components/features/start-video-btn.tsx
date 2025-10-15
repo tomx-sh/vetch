@@ -3,35 +3,47 @@ import { Button } from "../ui/button"
 import { Spinner } from "../ui/spinner";
 import { useMediaDevicesProvider } from "../hooks/use-media-devices"
 import { MediaControlView } from "../views/media-control-view";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { cn } from "../lib/utils";
-
 
 type Props = {
     className?: string;
 }
 
 export function StartVideoBtn({ className }: Props) {
-    const { setMediaStream, stream, waiting, isVideoReady, isAudioReady } = useMediaDevicesProvider();
+    const { setMediaStream, stream, waiting } = useMediaDevicesProvider();
     const [setup, setSetup] = useState<{ video: boolean; audio: boolean }>({ video: true, audio: true });
+    const [isActive, setIsActive] = useState(false);
 
     const handleSwitchAudio = useCallback((enabled: boolean) => {
         setSetup(prev => ({ ...prev, audio: enabled }));
-        setMediaStream({ audio: enabled });
-    }, [setMediaStream]);
+        if (isActive) {
+            setMediaStream({ audio: enabled });
+        }
+    }, [setMediaStream, isActive]);
 
     const handleSwitchVideo = useCallback((enabled: boolean) => {
         setSetup(prev => ({ ...prev, video: enabled }));
-        setMediaStream({ video: enabled });
-    }, [setMediaStream]);
+        if (isActive) {
+            setMediaStream({ video: enabled });
+        }
+    }, [setMediaStream, isActive]);
 
     const handleStart = useCallback(() => {
+        setIsActive(true);
         setMediaStream({ video: setup.video, audio: setup.audio });
     }, [setup, setMediaStream]);
 
     const handleStop = useCallback(() => {
+        setIsActive(false);
         setMediaStream({ video: false, audio: false });
     }, [setMediaStream]);
+
+    useEffect(() => {
+        if (!stream && !waiting) {
+            setIsActive(false);
+        }
+    }, [stream, waiting]);
 
     const message = waiting ? "Starting..." : (stream ? "Stop" : "Start");
     const colorClass = waiting ? "bg-muted-foreground" : (stream ? "bg-chart-1 hover:bg-chart-1" : "bg-chart-2 hover:bg-chart-2");
