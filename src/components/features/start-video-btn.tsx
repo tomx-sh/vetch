@@ -1,7 +1,7 @@
 "use client"
 import { Button } from "../ui/button"
 import { Spinner } from "../ui/spinner";
-import { useMediaDevices } from "../hooks/use-media-devices"
+import { useMediaDevicesProvider } from "../hooks/use-media-devices"
 import { MediaControlView } from "../views/media-control-view";
 import { useState, useCallback } from "react";
 import { cn } from "../lib/utils";
@@ -12,29 +12,26 @@ type Props = {
 }
 
 export function StartVideoBtn({ className }: Props) {
-    const { open, close, stream, waiting } = useMediaDevices();
-    const [isStarted, setIsStarted] = useState(false);
-    const [audioEnabled, setAudioEnabled] = useState(true);
-    const [videoEnabled, setVideoEnabled] = useState(true);
+    const { setMediaStream, stream, waiting, isVideoReady, isAudioReady } = useMediaDevicesProvider();
+    const [setup, setSetup] = useState<{ video: boolean; audio: boolean }>({ video: true, audio: true });
 
     const handleSwitchAudio = useCallback((enabled: boolean) => {
-        setAudioEnabled(enabled);
-        if (isStarted) open({ video: videoEnabled, audio: enabled });
-    }, [videoEnabled, open]);
+        setSetup(prev => ({ ...prev, audio: enabled }));
+        setMediaStream({ audio: enabled });
+    }, [setMediaStream]);
 
     const handleSwitchVideo = useCallback((enabled: boolean) => {
-        setVideoEnabled(enabled);
-        if (isStarted) open({ video: enabled, audio: audioEnabled });
-    }, [audioEnabled, open]);
+        setSetup(prev => ({ ...prev, video: enabled }));
+        setMediaStream({ video: enabled });
+    }, [setMediaStream]);
 
-    const handleStart = () => {
-        open({ video: videoEnabled, audio: audioEnabled })
-        setIsStarted(true);
-    };
-    const handleStop = () => {
-        close()
-        setIsStarted(false);
-    };
+    const handleStart = useCallback(() => {
+        setMediaStream({ video: setup.video, audio: setup.audio });
+    }, [setup, setMediaStream]);
+
+    const handleStop = useCallback(() => {
+        setMediaStream({ video: false, audio: false });
+    }, [setMediaStream]);
 
     const message = waiting ? "Starting..." : (stream ? "Stop" : "Start");
     const colorClass = waiting ? "bg-muted-foreground" : (stream ? "bg-chart-1 hover:bg-chart-1" : "bg-chart-2 hover:bg-chart-2");
@@ -43,8 +40,8 @@ export function StartVideoBtn({ className }: Props) {
         <div className={cn("flex gap-4 items-center border shadow-lg/5 rounded-full p-1 w-fit bg-background", className)}>
 
             <MediaControlView
-                audioEnabled={audioEnabled}
-                videoEnabled={videoEnabled}
+                audioEnabled={setup.audio}
+                videoEnabled={setup.video}
                 onAudioToggle={handleSwitchAudio}
                 onVideoToggle={handleSwitchVideo}
                 className="pl-2"
