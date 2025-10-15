@@ -150,3 +150,32 @@
 .animate-bubble-pop {
   animation: bubble-pop 220ms ease-out both;
 }
+
+/* .excalidraw .App-menu_bottom {
+  align-items: end !important;
+}
+
+.excalidraw {
+  --color-primary: red !important;
+} */
+
+.custom-styles .excalidraw .App-menu_bottom {
+  align-items: end !important;
+}
+
+.custom-styles .excalidraw .Island {
+  border: 1px solid var(--border) !important;
+}
+
+.custom-styles .excalidraw {
+  --ui-font: var(--font-sans) !important;
+  --color-primary: var(--primary) !important;
+  --color-primary-darker: var(--primary) !important;
+  --color-surface-primary-container: var(--accent) !important;
+  --color-on-primary-container: var(--accent-foreground) !important;
+  --color-surface-high: var(--accent) !important;
+  --color-surface-low: var(--accent) !important;
+  --color-brand-active: var(--primary) !important;
+  --color-brand-hover: var(--primary) !important;
+  --shadow-island: var(--shadow-lg) !important;
+}
