@@ -1,72 +1,75 @@
 "use client"
-import { Button } from "../ui/button"
+import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
-import { useMediaDevicesProvider } from "../hooks/use-media-devices"
-import { MediaControlView } from "../views/media-control-view";
-import { useState, useCallback, useEffect } from "react";
+import { useMediaDevicesProvider } from "../hooks/use-media-devices";
+import { MediaSwitch } from "../views/media-switch";
+import { useCallback, useState } from "react";
 import { cn } from "../lib/utils";
+import { Radio } from "lucide-react";
 
 type Props = {
     className?: string;
 }
 
 export function StartVideoBtn({ className }: Props) {
-    const { setMediaStream, stream, waiting } = useMediaDevicesProvider();
-    const [setup, setSetup] = useState<{ video: boolean; audio: boolean }>({ video: true, audio: true });
+    const {
+        startMediaStream,
+        stopMediaStream,
+        setAudioEnabled,
+        setVideoEnabled,
+        preferences,
+        waiting,
+    } = useMediaDevicesProvider();
     const [isActive, setIsActive] = useState(false);
-
-    const handleSwitchAudio = useCallback((enabled: boolean) => {
-        setSetup(prev => ({ ...prev, audio: enabled }));
-        if (isActive) {
-            setMediaStream({ audio: enabled });
-        }
-    }, [setMediaStream, isActive]);
-
-    const handleSwitchVideo = useCallback((enabled: boolean) => {
-        setSetup(prev => ({ ...prev, video: enabled }));
-        if (isActive) {
-            setMediaStream({ video: enabled });
-        }
-    }, [setMediaStream, isActive]);
 
     const handleStart = useCallback(() => {
         setIsActive(true);
-        setMediaStream({ video: setup.video, audio: setup.audio });
-    }, [setup, setMediaStream]);
+        void startMediaStream({
+            video: preferences.video ? { facingMode: "user" } : false,
+            audio: preferences.audio ? true : false,
+        }).catch(() => setIsActive(false));
+    }, [preferences, startMediaStream]);
 
     const handleStop = useCallback(() => {
         setIsActive(false);
-        setMediaStream({ video: false, audio: false });
-    }, [setMediaStream]);
+        stopMediaStream();
+    }, [stopMediaStream]);
 
-    useEffect(() => {
-        if (!stream && !waiting) {
-            setIsActive(false);
-        }
-    }, [stream, waiting]);
+    const handleAudioToggle = useCallback((enabled: boolean) => {
+        setAudioEnabled(enabled, true);
+    }, [setAudioEnabled]);
 
-    const message = waiting ? "Starting..." : (stream ? "Stop" : "Start");
-    const colorClass = waiting ? "bg-muted-foreground" : (stream ? "bg-chart-1 hover:bg-chart-1" : "bg-chart-2 hover:bg-chart-2");
+    const handleVideoToggle = useCallback((enabled: boolean) => {
+        setVideoEnabled(enabled, { facingMode: "user" });
+    }, [setVideoEnabled]);
+
+
+    const message = waiting ? (isActive ? "Updating..." : "Starting...") : (isActive ? "Stop" : "Start streaming");
+    const colorClass = waiting ? "bg-muted-foreground" : (isActive ? "bg-chart-1 hover:bg-chart-1" : "bg-chart-2 hover:bg-chart-2");
 
     return (
         <div className={cn("flex gap-4 items-center border shadow-lg/5 rounded-full p-1 w-fit bg-background", className)}>
 
-            <MediaControlView
-                audioEnabled={setup.audio}
-                videoEnabled={setup.video}
-                onAudioToggle={handleSwitchAudio}
-                onVideoToggle={handleSwitchVideo}
-                className="pl-2"
+            <MediaSwitch
+                type="video"
+                enabled={preferences.video}
+                onChange={handleVideoToggle}
+                className="ml-3"
+            />
+            <MediaSwitch
+                type="audio"
+                enabled={preferences.audio}
+                onChange={handleAudioToggle}
             />
 
-
             <Button
-                onClick={stream ? handleStop : handleStart}
+                onClick={isActive ? handleStop : handleStart}
                 disabled={waiting}
-                title={stream ? "Stop Video" : "Start Video"}
+                title={isActive ? "Stop Video" : "Start Video"}
                 className={cn("rounded-full hover:brightness-110", colorClass)}
             >
                 {waiting && <Spinner />}
+                {!waiting && !isActive && <Radio />}
                 {message}
             </Button>
 

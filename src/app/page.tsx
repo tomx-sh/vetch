@@ -7,12 +7,7 @@ export default function Home() {
     return (
         <MediaDevicesProvider>
             <main className="relative w-dvw h-dvh overflow-hidden">
-                <Canvas
-                    footer={<StartVideoBtn />}
-                    className="w-full h-full"
-                />
-
-
+                <Canvas footer={<StartVideoBtn />} className="w-full h-full" />
                 <VideoBubble size={100} className="z-10 absolute bottom-2 right-2" />
             </main>
         </MediaDevicesProvider>

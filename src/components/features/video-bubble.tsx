@@ -9,9 +9,10 @@ import { AudioLines } from "lucide-react";
 export type VideoBubbleProps = Omit<BubbleProps, "children">;
 
 export function VideoBubble({ size, className }: VideoBubbleProps) {
-    const { stream, isVideoReady } = useMediaDevicesProvider();
+    const { stream } = useMediaDevicesProvider();
     //const [isReady, setIsReady] = useState(false);
     const videoRef = useRef<HTMLVideoElement | null>(null);
+    const hasVideoTrack = stream?.getVideoTracks().some(track => track.readyState === "live" && track.enabled) ?? false;
 
     useEffect(() => {
         //setIsReady(false);
@@ -46,7 +47,7 @@ export function VideoBubble({ size, className }: VideoBubbleProps) {
     //     };
     // }, [stream]);
 
-    if (!stream) {
+    if (!stream || !hasVideoTrack) {
         return null;
     }
 
@@ -61,13 +62,13 @@ export function VideoBubble({ size, className }: VideoBubbleProps) {
                 autoPlay
                 playsInline
                 muted
-                className={cn("h-full w-full object-cover", !isVideoReady && "opacity-0")}
+                className={cn("h-full w-full object-cover")}//, !isVideoReady && "opacity-0")}
             />
-            {!isVideoReady && (
+            {/* {!isVideoReady && (
                 <div className="absolute inset-0 flex items-center justify-center">
                     <Spinner className="h-6 w-6 text-muted-foreground" />
                 </div>
-            )}
+            )} */}
         </Bubble>
     );
 }

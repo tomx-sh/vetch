@@ -1,0 +1,44 @@
+import { create } from 'zustand';
+
+type LocalmediaStream = {
+    status: 'off'
+} | {
+    status: 'waiting-for-permission'
+    askingFor: { audio: boolean, video: boolean }
+} | {
+    status: 'loading'
+    stream: MediaStream;
+} | {
+    status: 'on'
+    stream: MediaStream;
+} | {
+    status: 'error'
+    error: Error;
+}
+
+
+
+type State = {
+    sessionState: 'closed' | 'live';
+    localMediaStream: LocalmediaStream;
+    localMediaSettings: { audio: boolean; video: boolean };
+}
+
+type Actions = {
+    setSessionState: (state: State['sessionState']) => void;
+    setLocalMediaStream: (stream: LocalmediaStream) => void;
+    setLocalMediaSettings: (settings: { audio: boolean; video: boolean }) => void;
+}
+
+const initialState: State = {
+    sessionState: 'closed',
+    localMediaStream: { status: 'off' },
+    localMediaSettings: { audio: true, video: true },
+};
+
+export const useStore = create<State & Actions>((set) => ({
+    ...initialState,
+    setSessionState: (sessionState) => set({ sessionState }),
+    setLocalMediaStream: (localMediaStream) => set({ localMediaStream }),
+    setLocalMediaSettings: (localMediaSettings) => set({ localMediaSettings }),
+}));
