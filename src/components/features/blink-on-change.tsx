@@ -1,6 +1,7 @@
 "use client"
 import { useEffect, useState, useCallback } from "react";
 import { useCanvasApi, ExcalidrawElement, AppState, BinaryFiles } from "./canvas"
+import { usePresence } from "../hooks/use-presence";
 
 
 /**
@@ -9,6 +10,7 @@ import { useCanvasApi, ExcalidrawElement, AppState, BinaryFiles } from "./canvas
 export function BlinkOnChange() {
     const { canvasApi } = useCanvasApi();
     const [blink, setBlink] = useState(false);
+    //const { presences } = usePresence({ roomId: "room:001" });
 
     const handleChange = useCallback((elements: readonly ExcalidrawElement[], appState: AppState, files: BinaryFiles) => {
         setBlink(true);
