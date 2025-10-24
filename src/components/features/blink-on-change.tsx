@@ -1,6 +1,6 @@
 "use client"
-import { useEffect, useState } from "react";
-import { useCanvasApi } from "./canvas"
+import { useEffect, useState, useCallback } from "react";
+import { useCanvasApi, ExcalidrawElement, AppState, BinaryFiles } from "./canvas"
 
 
 /**
@@ -10,19 +10,17 @@ export function BlinkOnChange() {
     const { canvasApi } = useCanvasApi();
     const [blink, setBlink] = useState(false);
 
+    const handleChange = useCallback((elements: readonly ExcalidrawElement[], appState: AppState, files: BinaryFiles) => {
+        setBlink(true);
+        console.log("AppState changed:", appState);
+        console.log("Elements changed:", elements);
+        setTimeout(() => setBlink(false), 300); // Blink duration
+    }, []);
+
     useEffect(() => {
         if (!canvasApi) return;
-
-        const handleChange = () => {
-            setBlink(true);
-            setTimeout(() => setBlink(false), 300); // Blink duration
-        };
-
         const unsub = canvasApi.onChange(handleChange);
-
-        return () => {
-            unsub();
-        };
+        return () => { unsub() };
     }, [canvasApi]);
 
     return (

@@ -6,6 +6,10 @@ const Footer = dynamic(async () => (await import("@excalidraw/excalidraw")).Foot
 import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 import { useState, useContext, createContext, JSX } from "react";
 
+// Re exports all excalidraw types
+export type * from "@excalidraw/excalidraw/types";
+export type * from "@excalidraw/excalidraw/element/types";
+
 
 type Props = {
     footer?: React.ReactNode;

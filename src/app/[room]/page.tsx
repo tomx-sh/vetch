@@ -4,13 +4,16 @@ import { VideoBubble } from "@/components/features/video-bubble";
 import { Canvas, CanvasApiProvider } from "@/components/features/canvas";
 import { BlinkOnChange } from "@/components/features/blink-on-change";
 
-export default function Home() {
+
+export default async function RoomPage(props: PageProps<'/[room]'>) {
+    const { room } = await props.params;
     return (
         <MediaDevicesProvider>
             <CanvasApiProvider>
                 <main className="relative w-dvw h-dvh overflow-hidden">
                     <Canvas
-                        topRight={<BlinkOnChange />}
+                        //topRight={<BlinkOnChange />}
+                        topRight={<p>{room}</p>}
                         footer={<StartVideoBtn />}
                         className="w-full h-full"
                     />
